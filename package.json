@@ -1,0 +1,28 @@
+{
+  "name": "crawler",
+  "version": "1.0.0",
+  "description": "test for crawler in typescript",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node ./src/crawler"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fengmengliu/crawler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fengmengliu/crawler/issues"
+  },
+  "homepage": "https://github.com/fengmengliu/crawler#readme",
+  "devDependencies": {
+    "@types/cheerio": "^0.22.21",
+    "@types/superagent": "^4.1.9",
+    "cheerio": "^1.0.0-rc.3",
+    "superagent": "^6.0.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  }
+}
