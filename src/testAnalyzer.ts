@@ -16,6 +16,14 @@ interface Content{
 }
 
 export default class TestAnalyzer implements Analyzer{
+  private constructor() {}; // 单例模式不允许类在外部被实例化；同时正因为没被实例化，所以需要定义instance为static方法，方便类直接调用; 同时获取instance的方法也为static类型
+  private static instance: TestAnalyzer;
+  public static getInstance() {
+    if(!TestAnalyzer.instance){
+      TestAnalyzer.instance = new TestAnalyzer();
+    }
+    return TestAnalyzer.instance;
+  }
   private getCourseInfo(html: string) {
     const $ = cheerio.load(html); // 将html字符串传递给load方法，类似于获取到了jquery对象；之后就是和jquery一样的操作了
     const courseInfos: Course[] = [];
@@ -43,5 +51,5 @@ export default class TestAnalyzer implements Analyzer{
     const courseResult: CourseInfo = this.getCourseInfo(html);
     const fileContent = this.getJsonData(courseResult, filepath);
     return JSON.stringify(fileContent);
-  }
+  };
 }

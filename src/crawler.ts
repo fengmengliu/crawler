@@ -13,16 +13,16 @@ export interface Analyzer{
 class Crawler {
   private filepath = path.resolve(__dirname, '../data/content.json');
 
-  async getHtml() {
+  private async getHtml() {
     const result = await superagent.get(this.url);
     return result.text;
   };
 
-  writeFile(content: string) {
+  private writeFile(content: string) {
     fs.writeFileSync(this.filepath, content);
   }
 
-  async initCrawler() {
+  private async initCrawler() {
     const html = await this.getHtml();
     const fileContent = this.analyzer.analyze(html, this.filepath);
     this.writeFile(fileContent);
@@ -36,6 +36,10 @@ class Crawler {
 const secret= 'x3b174jsx';
 const url = `http://www.dell-lee.com/typescript/demo.html + ${secret}`;
 
-const analyzer = new TestAnalyzer(); // 获取课程名称
+// 组合模式的调用方式
+// const analyzer = new TestAnalyzer(); // 获取课程名称
 // const analyzer = new SimpleAnalyzer(); // 获取整个html内容，上下两个分析器做为组合模式使用在crawler中，想使用哪个分析器就创建哪个
+
+// 将分析器采用单例模式实现
+const analyzer = TestAnalyzer.getInstance();
 new Crawler(analyzer, url);
