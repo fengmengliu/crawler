@@ -39,10 +39,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Crawler = void 0;
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var superagent_1 = __importDefault(require("superagent"));
-var testAnalyzer_1 = __importDefault(require("./testAnalyzer"));
 // crawler类，主要是从url中获取html，然后调用分析器处理函数，将处理的结果保存到文件中
 var Crawler = /** @class */ (function () {
     function Crawler(analyzer, url) {
@@ -85,11 +85,4 @@ var Crawler = /** @class */ (function () {
     };
     return Crawler;
 }());
-var secret = 'x3b174jsx';
-var url = "http://www.dell-lee.com/typescript/demo.html + " + secret;
-// 组合模式的调用方式
-// const analyzer = new TestAnalyzer(); // 获取课程名称
-// const analyzer = new SimpleAnalyzer(); // 获取整个html内容，上下两个分析器做为组合模式使用在crawler中，想使用哪个分析器就创建哪个
-// 将分析器采用单例模式实现
-var analyzer = testAnalyzer_1.default.getInstance();
-new Crawler(analyzer, url);
+exports.Crawler = Crawler;
