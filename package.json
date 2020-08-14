@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev:build": "tsc -w",
-    "dev:start": "nodemon node ./dist/crawler.js",
+    "dev:start": "nodemon node ./build/index.js",
     "start": "concurrently npm:dev:*"
   },
   "nodemonConfig": {

@@ -11,5 +11,5 @@ test for crawler in typescript
 （4）最终执行命令如下：
   "dev:build": "tsc -w",
   "dev:start": "nodemon node ./dist/crawler.js",
-  "start": "concurrently npm:dev:*"
-  其中，最后一句，是用concurrently执行npm run dev后面的所有命令的简写。
+  "start": "tsc && concurrently npm:dev:*"
+  其中，最后一句，是用concurrently执行npm run dev后面的所有命令的简写。(tsc是先对ts文件进行了编译，防止node命令后面代码执行过程中需要的依赖文件没有编译完成)
