@@ -9,7 +9,7 @@ export interface Analyzer{
 
 // crawler类，主要是从url中获取html，然后调用分析器处理函数，将处理的结果保存到文件中
 export class Crawler {
-  private filepath = path.resolve(__dirname, '../data/content.json');
+  private filepath = path.resolve(__dirname, '../../data/content.json');
 
   private async getHtml() {
     const result = await superagent.get(this.url);

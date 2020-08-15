@@ -1,20 +1,31 @@
-import { Router, Request, Response } from 'express';
-import TestAnalyzer from './testAnalyzer';
-import { Crawler } from './crawler';
 import fs from 'fs';
 import path from 'path';
+import { Router, Request, Response, NextFunction } from 'express';
+import Analyzer from './util/testAnalyzer';
+import { Crawler } from './util/crawler';
+import { getResponseData } from './util/util'; 
 
 // 上文出现的.d.ts文件不准确解决方法（去修改.d.ts文件目前还是不靠谱的），定义新的接口继承别人的类进行修改即可
-interface RequestWithBody extends Request{
+interface RequestBody extends Request{
   body: {
     [propName: string]: string | undefined
+  }
+}
+
+// 业务逻辑中间件
+const checkLogin = (req: Request, res: Response, next: NextFunction) => {
+  const isLogin = req.session ? req.session.login : undefined;
+  if(isLogin) {
+    next();
+  } else {
+    res.json(getResponseData(null, '请先登录！'));
   }
 }
 
 const router = Router();
 
 // 首页接口
-router.get('/', (req: Request, res: Response) => {
+router.get('/', (req: RequestBody, res: Response) => {
   const isLogin = req.session ? req.session.login : undefined;
   if(isLogin) {
     res.send(`
@@ -39,56 +50,46 @@ router.get('/', (req: Request, res: Response) => {
 })
 
 // 登录操作
-router.post('/login', (req: RequestWithBody, res: Response) => {
+router.post('/login', (req: RequestBody, res: Response) => {
   const { password } = req.body;
   const isLogin = req.session ? req.session.login : undefined;
   if(isLogin) {
-    res.send('已经登录过');
+    res.json(getResponseData(false, '已经登录过'));
   } else {
     if(password === '123' && req.session) {
         req.session.login = true;
-        res.send('登录成功');
+        res.json(getResponseData(true));
     } else {
-      res.send('登录失败');
+      res.json(getResponseData(false, '登录失败'));
     }
   }
 })
 
 // 登出操作
-router.post('/logout', (req: RequestWithBody, res: Response) => {
+router.get('/logout', (req: RequestBody, res: Response) => {
   if(req.session) {
     req.session.login = undefined;
   }
-  res.redirect('/'); // 跳转到首页
+  res.json(getResponseData(true));
 })
 
 // 爬取数据
-router.get('/getData', (req: RequestWithBody, res: Response) => {
-  const isLogin = req.session ? req.session.login : undefined;
-  if(isLogin) {
-    const secret= 'x3b174jsx';
-    const url = `http://www.dell-lee.com/typescript/demo.html + ${secret}`;
-    const analyzer = TestAnalyzer.getInstance();
-    new Crawler(analyzer, url);
-    res.send('getData is success!');
-  } else {
-    res.send('请登录后爬取内容!');
-  }
+router.get('/getData', checkLogin, (req: RequestBody, res: Response) => {
+  const secret= 'x3b174jsx';
+  const url = `http://www.dell-lee.com/typescript/demo.html + ${secret}`;
+  const analyzer = Analyzer.getInstance();
+  new Crawler(analyzer, url);
+  res.json(getResponseData(true));
 })
 
 // 从文件中读取爬取到的内容信息
-router.get('/showData', (req: RequestWithBody, res: Response) =>{
-  const isLogin = req.session ? req.session.login : undefined;
-  if(isLogin) {
-    try {
-      const filePath = path.resolve(__dirname, '../data/content.json');// 注意：此处打包后的路径是相对于build目录来找data目录的
-      const result = fs.readFileSync(filePath, 'utf-8');
-      res.json(JSON.parse(result));
-    } catch (error) {
-      res.send('尚未爬取到内容');
-    }
-  } else {
-    res.send('请登录后查看');
+router.get('/showData', checkLogin, (req: RequestBody, res: Response) =>{
+  try {
+    const filePath = path.resolve(__dirname, '../data/content.json'); // 此路径为源码的相对路路径，而不是打包编译后的编译文件的路径
+    const result = fs.readFileSync(filePath, 'utf-8');
+    res.json(getResponseData(JSON.parse(result)));
+  } catch (error) {
+    res.json(getResponseData(false, '数据不存在'));
   }
 });
 
