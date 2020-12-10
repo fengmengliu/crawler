@@ -4,10 +4,7 @@
   "description": "test for crawler in typescript",
   "main": "index.js",
   "scripts": {
-    "dev:build": "tsc -w",
-    "dev:start": "nodemon node ./build/index.js",
-    "start": "concurrently npm:dev:*",
-    "test": "tsc && node ./build/controller/LoginController.js"
+    "start": "ts-node ./src/crawller.ts"
   },
   "nodemonConfig": {
     "ignore": [
