@@ -1,43 +1,19 @@
 // npm init -y(会出来个package.json); tsc --init;
 import superagent from 'superagent'; //需安装类型说明文件 npm i -D @types/superagent
-import cheerio from 'cheerio'; // 解析html代码，之后可以类似于jquery的方式获取页面元素
 import fs from 'fs';
 import path from 'path';
+import myAnalyzer from './myAnalyzer';
+import testAnalyzer from './testAnalyzer';
 
-interface Course{
-  title: string
-}
-
-interface CourseResult{
-  time: number,
-  data: Course[]
-}
-
-interface FileContent{
-  [propName: number]: Course[]
+// 此接口的定义是有讲究的，因为本文件需要使用的方法只有一个，所以在定义这个接口的时候，根据使用的方法来定义，同时，导出这个接口，在另一个页面进行实现；
+export interface Analyzer{
+  analyze: (html: string, filePath: string)=> string
 }
 
 class Crawller {
-  private secret = 'x3b174jsx';
-  private url = `http://www.dell-lee.com/?secret=${this.secret}`;
+
   // __dirname是当前路径
   private filePath = path.resolve(__dirname, '../data/course.json');
-
-  // 根据html获取相关信息
-  getCourseJSON(html: string) {
-    const courseInfos: Course[] = [];
-    const $ = cheerio.load(html);
-    const courses = $('.course-item');
-    courses.map((index, item) => {
-      const desc = $(item).find('.course-desc');
-      const title = desc.text(); //保存标题
-      courseInfos.push({title})
-    });
-    return {
-      time: new Date().getTime(),
-      data: courseInfos
-    }
-  };
 
   //获取完整html
   async getRawHtml() {
@@ -45,32 +21,28 @@ class Crawller {
     return result.text;
   }
 
-  //将获取到的信息存储到json文件中
-  generateJsonContent(courseResult: CourseResult) {
-    let content: FileContent = {};
-    if(fs.existsSync(this.filePath)){
-      content = JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));
-    }
-    content[courseResult.time] = courseResult.data;
-    return content;
-  }
-
-  //将爬取的内容保存的文件中
-  saveContentToFile(content:FileContent) {
-    fs.writeFileSync(this.filePath, JSON.stringify(content));
+  //将爬取的内容保存到文件中
+  saveContentToFile(content:string) {
+    fs.writeFileSync(this.filePath, content);
   }
 
   //爬虫初始化方法
   async initCrawllerProcess() {
     const html = await this.getRawHtml();
-    const courseResult = this.getCourseJSON(html);
-    const content = this.generateJsonContent(courseResult);
+    const content = this.analyzer.analyze(html, this.filePath);
     this.saveContentToFile(content);
   }
 
-  constructor(){
+  constructor(private url: string, private analyzer: Analyzer){
     this.initCrawllerProcess();
   }
 }
 
-const crawller = new Crawller();
+
+const secret = 'x3b174jsx';
+const url = `http://www.dell-lee.com/?secret=${secret}`;
+// const analyzer = new myAnalyzer();
+// const crawller = new Crawller(url, analyzer);
+
+const testanalyzer = new testAnalyzer();
+const crawller = new Crawller(url, testanalyzer);
