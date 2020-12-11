@@ -9,9 +9,9 @@ export interface Analyzer{
   analyze: (html: string, filePath: string)=> string
 }
 
-class Crawller {
+export default class Crawller {
 
-  // __dirname是当前路径
+  // _dirname是当前路径
   private filePath = path.resolve(__dirname, '../data/course.json');
 
   //获取完整html
