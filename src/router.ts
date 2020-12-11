@@ -1,6 +1,8 @@
 import {Router, Request, Response } from 'express';
 import Crawller from './Crawller';
 import MyAnalyzer from './MyAnalyzer';
+import fs from 'fs';
+import path from 'path';
 
 // 问题1： express库的类型定义文件， .d.ts文件类型描述不准确
 // --- 解决方案：引入之前.d.ts文件中的内容，对内容进行修改，即继承原来的内容，再添加自己需要的内容
@@ -17,29 +19,73 @@ const router = Router();
 
 //路由
 router.get('/', (req: Request, res: Response) => {
-  let html = `
+  const isLogin = req.session ? req.session.login : false;
+  if(isLogin) {
+    res.send(`
     <html>
       <body>
-        <form method='post' action='/getData'>
+        <a href='/getData'>爬取内容</a>
+        <a href='/showData'>展示数据</a>
+        <a href='/logout'>确认退出</a>
+      </body>
+    </html>
+  `)
+  }else{
+    res.send(`
+    <html>
+      <body>
+        <form method='post' action='/login'>
           <input placeholder='请输入密码' name="password">
           <button>提交</button>
         </form>
       </body>
     </html>
-  `
-  res.send(html);
+  `);
+  }
 });
 
-router.post('/getData', (req: RequestBody, res: Response) => {
-  const { password } = req.body; //没有使用body-parser中间件时，获取不到body中数据
-  if(password === '123'){
+//注意，请求方式不对，比如是get使用成post也会报404错误；
+router.get('/getData', (req: RequestBody, res: Response) => {
+  const isLogin = req.session ? req.session.login : false;
+  if(isLogin){
     const secret = 'x3b174jsx';
     const url = `http://www.dell-lee.com/?secret=${secret}`;
     const crawller = new Crawller(url, MyAnalyzer.getInstance());
     res.send('get data success!');
   } else {
-    res.send(`${req.author}密码错误，请从新输入!`);
+    res.send(`请先登录`);
   }
 });
+
+router.post('/login', (req: RequestBody, res: Response) => {
+  const { password } = req.body; //没有使用body-parser中间件时，获取不到body中数据
+  const isLogin = req.session ? req.session.login : false;
+  if(isLogin){
+    res.send('您已登录过')
+  }else{
+    console.log(req.session);
+    if(password === '123' && req.session){
+      req.session.login = true;
+      res.send('登录成功');
+    }else{
+      res.send('请输入正确的密码');
+    }
+  }
+});
+
+router.get('/showData', (req: RequestBody, res: Response) => {
+  try{
+    const filePath = path.resolve(__dirname, '../data/course.json')
+    const content = fs.readFileSync(filePath, 'utf-8');
+    res.send(content);
+  }catch(e){
+    res.send('暂无爬取数据');
+  }
+});
+
+router.get('/logout', (req: RequestBody, res: Response) => {
+  req.session && (req.session.login = undefined);
+  res.redirect('/');
+})
 
 export default router;
