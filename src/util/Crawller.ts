@@ -12,7 +12,7 @@ export interface Analyzer{
 export default class Crawller {
 
   // _dirname是当前路径
-  private filePath = path.resolve(__dirname, '../data/course.json');
+  private filePath = path.resolve(__dirname, '../../data/course.json');
 
   //获取完整html
   private async getRawHtml() {
