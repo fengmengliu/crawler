@@ -6,7 +6,8 @@
   "scripts": {
     "dev:start": "nodemon node ./build/index.js",
     "dev:build": "tsc -w",
-    "start": "tsc && concurrently npm:dev:*"
+    "start": "tsc && concurrently npm:dev:*",
+    "test": "tsc && node ./build/controller/LoginController.js"
   },
   "nodemonConfig": {
     "ignore": [

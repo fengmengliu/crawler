@@ -27,33 +27,6 @@ const checkLogin = (req: RequestBody, res: Response, next: NextFunction) => {
 
 const router = Router();
 
-//路由
-router.get('/', (req: Request, res: Response) => {
-  const isLogin = req.session ? req.session.login : false;
-  if(isLogin) {
-    res.send(`
-    <html>
-      <body>
-        <a href='/getData'>爬取内容</a>
-        <a href='/showData'>展示数据</a>
-        <a href='/logout'>确认退出</a>
-      </body>
-    </html>
-  `)
-  }else{
-    res.send(`
-    <html>
-      <body>
-        <form method='post' action='/login'>
-          <input placeholder='请输入密码' name="password">
-          <button>提交</button>
-        </form>
-      </body>
-    </html>
-  `);
-  }
-});
-
 //注意，请求方式不对，比如是get使用成post也会报404错误；
 router.get('/getData', checkLogin, (req: RequestBody, res: Response) => {
   const secret = 'x3b174jsx';
