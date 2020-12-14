@@ -1,7 +1,8 @@
 import express, {Request, Response, NextFunction} from 'express';
 // import router from './router';
 import './controller/LoginController';
-import { router } from './controller/decorator';
+import './controller/CrawllerController';
+import router from './router';
 import BodyParser from 'body-parser'; // express的中间件  --- 解决路由中获取不到body的问题；
 import cookieSession from 'cookie-session';
 

@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import 'reflect-metadata'; //注意此库直接引用就可以了，不用指定具体的对象名
-import { Controller, get, post } from './decorator';
+import { Controller, get, post } from '../decorator';
 import getResponseData from '../util/util';
 
 interface RequestBody extends Request{
@@ -9,18 +9,18 @@ interface RequestBody extends Request{
   }
 }
 
-@Controller
-class LoginController{
+@Controller('/')
+export class LoginController{
 
   @get('/logout')
-  logout(req: RequestBody, res: Response) {
+  logout(req: RequestBody, res: Response): void {
     req.session && (req.session.login = undefined);
     res.json(getResponseData(true));
   }
 
   @get('/')
-  home(req: RequestBody, res: Response) {
-    const isLogin = req.session ? req.session.login : false;
+  home(req: RequestBody, res: Response): void {
+    const isLogin = !!(req.session ? req.session.login : false);
     if(isLogin) {
       res.send(`
       <html>
@@ -46,9 +46,9 @@ class LoginController{
   }
 
   @post('/login')
-  login(req: RequestBody, res: Response) {
+  login(req: RequestBody, res: Response): void {
     const { password } = req.body; //没有使用body-parser中间件时，获取不到body中数据
-    const isLogin = req.session ? req.session.login : false;
+    const isLogin = !!(req.session ? req.session.login : false);
     if(isLogin){
       res.json(getResponseData(false, '您已登录过'));
     }else{
@@ -60,4 +60,5 @@ class LoginController{
       }
     }
   };
+
 }
