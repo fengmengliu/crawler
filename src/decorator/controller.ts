@@ -16,12 +16,12 @@ export function Controller(root: string) {
     for(let key in target.prototype){
       const path: string = Reflect.getMetadata('path', target.prototype, key);
       const method: Methods = Reflect.getMetadata('method', target.prototype, key);
-      const middleWare: RequestHandler = Reflect.getMetadata('middleWare', target.prototype, key);
+      const middleWares: RequestHandler[] = Reflect.getMetadata('middleWares', target.prototype, key) || [];
       const handler = target.prototype[key];
       if(path && method) {
         const fullPath = root === '/' ? path : `${root}${path}`;
-        if(middleWare) {
-          router[method](fullPath, middleWare,handler);
+        if(middleWares.length) {
+          router[method](fullPath, ...middleWares, handler);
         } else {
           router[method](fullPath, handler);
         }

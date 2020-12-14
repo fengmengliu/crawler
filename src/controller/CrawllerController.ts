@@ -15,6 +15,7 @@ interface RequestBody extends Request{
 
 const checkLogin = (req: RequestBody, res: Response, next: NextFunction): void => {
   const isLogin = !!(req.session ? req.session.login : false); // 通过!!转换成boolean型
+  console.log('checklogin middleware');
   if(isLogin){
     next();
   }else{
@@ -22,10 +23,16 @@ const checkLogin = (req: RequestBody, res: Response, next: NextFunction): void =
   }
 }
 
+const test = (req: RequestBody, res: Response, next: NextFunction): void => {
+  console.log('test middleware');
+  next();
+}
+
 @Controller('/')
 export class CrawllerController{
   @get('/getData')
   @use(checkLogin)
+  @use(test)
   getData(req: RequestBody, res: Response): void {
     const secret = 'x3b174jsx';
     const url = `http://www.dell-lee.com/?secret=${secret}`;
