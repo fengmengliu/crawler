@@ -28,7 +28,7 @@ const test = (req: RequestBody, res: Response, next: NextFunction): void => {
   next();
 }
 
-@Controller('/')
+@Controller('/api')
 export class CrawllerController{
   @get('/getData')
   @use(checkLogin)

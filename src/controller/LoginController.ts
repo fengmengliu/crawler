@@ -9,8 +9,12 @@ interface RequestBody extends Request{
   }
 }
 
-@Controller('/')
+@Controller('/api')
 export class LoginController{
+
+  static isLogin(req: RequestBody): boolean {
+    return !!(req.session ? req.session.login : false);
+  }
 
   @get('/logout')
   logout(req: RequestBody, res: Response): void {
@@ -18,39 +22,18 @@ export class LoginController{
     res.json(getResponseData(true));
   }
 
-  @get('/')
-  home(req: RequestBody, res: Response): void {
-    const isLogin = !!(req.session ? req.session.login : false);
-    if(isLogin) {
-      res.send(`
-      <html>
-        <body>
-          <a href='/getData'>爬取内容</a>
-          <a href='/showData'>展示数据</a>
-          <a href='/logout'>确认退出</a>
-        </body>
-      </html>
-    `)
-    }else{
-      res.send(`
-      <html>
-        <body>
-          <form method='post' action='/login'>
-            <input placeholder='请输入密码' name="password">
-            <button>提交</button>
-          </form>
-        </body>
-      </html>
-    `);
-    }
+  @get('/isLogin')
+  isLogin(req: RequestBody, res: Response): void {
+    const isLogin = LoginController.isLogin(req)
+    res.json(getResponseData(isLogin));
   }
 
   @post('/login')
   login(req: RequestBody, res: Response): void {
     const { password } = req.body; //没有使用body-parser中间件时，获取不到body中数据
-    const isLogin = !!(req.session ? req.session.login : false);
+    const isLogin = LoginController.isLogin(req);
     if(isLogin){
-      res.json(getResponseData(false, '您已登录过'));
+      res.json(getResponseData(true));
     }else{
       if(password === '123' && req.session){
         req.session.login = true;
